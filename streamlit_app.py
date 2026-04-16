@@ -53,17 +53,29 @@ with col1:
 with col2:
     st.subheader("Services")
     phone_service = st.selectbox("Phone Service", ("No", "Yes"))
-    multiple_lines = st.selectbox("Multiple Lines", ("No phone service", "No", "Yes"))
+    
+    if phone_service == "No":
+        multiple_lines_options = ("No phone service",)
+    else:
+        multiple_lines_options = ("No", "Yes")
+    multiple_lines = st.selectbox("Multiple Lines", multiple_lines_options)
+    
     internet_service = st.selectbox("Internet Service", ("DSL", "Fiber optic", "No"))
-    online_security = st.selectbox("Online Security", ("No internet service", "No", "Yes"))
-    online_backup = st.selectbox("Online Backup", ("No internet service", "No", "Yes"))
-    device_protection = st.selectbox("Device Protection", ("No internet service", "No", "Yes"))
+    
+    if internet_service == "No":
+        internet_options = ("No internet service",)
+    else:
+        internet_options = ("No", "Yes")
+        
+    online_security = st.selectbox("Online Security", internet_options)
+    online_backup = st.selectbox("Online Backup", internet_options)
+    device_protection = st.selectbox("Device Protection", internet_options)
 
 with col3:
     st.subheader("More Services & Billing")
-    tech_support = st.selectbox("Tech Support", ("No internet service", "No", "Yes"))
-    streaming_tv = st.selectbox("Streaming TV", ("No internet service", "No", "Yes"))
-    streaming_movies = st.selectbox("Streaming Movies", ("No internet service", "No", "Yes"))
+    tech_support = st.selectbox("Tech Support", internet_options)
+    streaming_tv = st.selectbox("Streaming TV", internet_options)
+    streaming_movies = st.selectbox("Streaming Movies", internet_options)
     paperless_billing = st.selectbox("Paperless Billing", ("No", "Yes"))
     payment_method = st.selectbox("Payment Method", ("Electronic check", "Mailed check", "Bank transfer (automatic)", "Credit card (automatic)"))
     monthly_charges = st.number_input("Monthly Charges ($)", min_value=0.0, value=50.0)
@@ -100,6 +112,11 @@ st.subheader("User Input Features Summary")
 st.dataframe(df_input)
 
 if st.button("Predict Churn", type="primary"):
+    # Billing consistency validation
+    if tenure > 1 and total_charges < monthly_charges:
+        st.error("Validation Error: For Tenure > 1 month, Total Charges cannot be less than Monthly Charges.")
+        st.stop()
+        
     # Preprocess the input
     
     # 1. Ensure columns are in the expected order
